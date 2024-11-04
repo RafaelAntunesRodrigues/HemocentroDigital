@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <q-table
-      :title="'Clientes (' + rows.length + ')'"
+      :title="'Doadores (' + rows.length + ')'"
       :rows="rows"
       :columns="columns"
       row-key="id"
@@ -10,12 +10,12 @@
         <q-th :props="props">Ações</q-th>
       </template>
       <template v-slot:top>
-        <span class="text-h5"
-          >Clientes
-          <span class="text-h6" style="color: rgb(167, 167, 167)"
-            >({{ rows.length }})</span
-          ></span
-        >
+        <span class="text-h5">
+          Doadores
+          <span class="text-h6" style="color: rgb(167, 167, 167)">
+            ({{ rows.length }})
+          </span>
+        </span>
         <q-space />
         <div class="q-pa-md">
           <q-input
@@ -32,7 +32,7 @@
           no-caps
           :disable="loading"
           label="Cadastrar"
-          :to="{ name: 'cadCliente' }"
+          :to="{ name: 'cadDoador' }"
           style="background-color: #26335d; width: 120px"
         />
       </template>
@@ -44,7 +44,7 @@
             icon="edit"
             color="primary"
             dense
-            :to="{ name: 'editCliente' }"
+            :to="{ name: 'editDoador' }"
           >
           </q-btn>
           <q-btn
@@ -61,8 +61,9 @@
         <q-td :props="props">
           <q-badge
             :color="props.row.status === 'Concluído' ? 'red' : 'green'"
-            >{{ props.row.status }}</q-badge
           >
+            {{ props.row.status }}
+          </q-badge>
         </q-td>
       </template>
     </q-table>
@@ -77,29 +78,15 @@ import { api } from "src/boot/axios";
 const filtroCPF = ref("");
 
 export default defineComponent({
-  name: "ClientesPage",
+  name: "DoadoresPage",
 
   setup() {
     const rows = ref([]);
     const columns = ref([
       {
-        name: "nome",
-        field: "nome",
+        name: "name",
+        field: "name",
         label: "Nome",
-        sortable: true,
-        align: "left",
-      },
-      {
-        name: "sobrenome",
-        field: "sobrenome",
-        label: "Sobrenome",
-        sortable: true,
-        align: "left",
-      },
-      {
-        name: "cpf",
-        field: "cpf",
-        label: "CPF do Cliente",
         sortable: true,
         align: "left",
       },
@@ -111,38 +98,69 @@ export default defineComponent({
         align: "left",
       },
       {
-        name: "telefone",
-        field: "telefone",
+        name: "telafone",
+        field: "telafone",
         label: "Telefone Contato",
         sortable: true,
         align: "left",
-        filter: true,
+      },
+      {
+        name: "tipoSanguineo",
+        field: "tipoSanguineo",
+        label: "Tipo Sanguíneo",
+        sortable: true,
+        align: "left",
+      },
+      {
+        name: "dataNasc",
+        field: "dataNasc",
+        label: "Data de Nascimento",
+        sortable: true,
+        align: "left",
+      },
+      {
+        name: "peso",
+        field: "peso",
+        label: "Peso (kg)",
+        sortable: true,
+        align: "left",
       },
       {
         name: "acoes",
         field: "acoes",
         label: "Ações",
-        sortable: true,
         align: "right",
       },
     ]);
 
     const fetchData = async () => {
       try {
-        const response = await api.get("/api/Cliente");
+        // Obtém o token do localStorage (ou de onde ele estiver armazenado)
+        const token = localStorage.getItem("token");
 
-        const clientes = response.data.$values;
+        if (!token) {
+          throw new Error("Token não encontrado");
+        }
 
-        rows.value = clientes;
+        // Faz a requisição com o cabeçalho Authorization
+        const response = await api.get("https://localhost:7237/api/Doadores", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
+        const doadores = response.data; // A resposta contém um array de objetos
 
         rows.value = filtroCPF.value
-          ? clientes.filter((cliente) => cliente.cpf.includes(filtroCPF.value))
-          : clientes;
+          ? doadores.filter((doador) =>
+              doador.cpf && doador.cpf.includes(filtroCPF.value)
+            )
+          : doadores;
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
       }
     };
+
     const $q = useQuasar();
 
     const confirm = (id) => {
@@ -178,3 +196,13 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.login-background {
+  background-color: #ffffff;
+}
+
+.error-message {
+  color: #ff0000;
+}
+</style>

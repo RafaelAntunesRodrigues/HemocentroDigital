@@ -84,28 +84,39 @@ export default {
   },
 
   methods: {
-    async fazerLogin() {
-      const email = this.login.email;
-      const senha = this.login.senha;
-      try {
-        const response = await api.post(
-          `/api/Hemocentro/Login?email=${email}&senha=${senha}`
-        );
+  async fazerLogin() {
+    const email = this.login.email;
+    const senha = this.login.senha;
 
-        console.log(response.data);
+    try {
+      const response = await api.post('https://localhost:7237/api/Login', {
+        email: email,
+        password: senha,
+      });
 
-        if (response.status == 200) {
-          this.$router.push({ name: "doacoes" });
-        } else {
-          this.erroLogin =
-            "Email ou Senha incorretos. Por favor, tente novamente.";
-        }
-      } catch (error) {
-        console.error("Erro durante o login", error);
+      // Se a resposta tiver status 200, o login foi bem-sucedido
+      if (response && response.status === 200) {
+        
+        localStorage.setItem('token', response.data);
+        this.$router.push({ name: "consultas" });
+      } else {
+        // Tratar outros status de sucesso diferentes de 200 (por precaução)
+        this.erroLogin =
+          "Email ou Senha incorretos. Por favor, tente novamente.";
+      }
+    } catch (error) {
+      console.error("Erro durante o login:", error);
+
+      // Tratamento seguro para erro que pode não conter todos os campos esperados
+      if (error.response && error.response.data) {
+        this.erroLogin = error.response.data.message || "Erro durante o login. Por favor, tente novamente.";
+      } else {
         this.erroLogin = "Erro durante o login. Por favor, tente novamente.";
       }
-    },
+    }
   },
+}
+,
 };
 </script>
 

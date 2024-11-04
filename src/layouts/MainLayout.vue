@@ -43,12 +43,11 @@ const linksList = [
     route: { name: "consultas" },
   },
   {
-    title: "Clientes",
+    title: "Doadores",  // Alterado de "Clientes" para "Doadores"
     caption: "",
     icon: "person",
-    route: { name: "clientes" },
+    route: { name: "doadores" }, // Atualize a rota se o nome também foi alterado
   },
-
   {
     title: "Avisos",
     caption: "",
