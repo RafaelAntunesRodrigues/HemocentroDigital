@@ -34,6 +34,7 @@
 <script>
 import { defineComponent, ref } from "vue";
 import EssentialLink from "components/EssentialLink.vue";
+import { route } from "quasar/wrappers";
 
 const linksList = [
   {
@@ -47,6 +48,12 @@ const linksList = [
     caption: "",
     icon: "person",
     route: { name: "doadores" }, // Atualize a rota se o nome também foi alterado
+  },
+  {
+    title: "Agendamentos",
+    caption: "",
+    icon: "calendar_today",
+    route: {name: "agendamentos"},
   },
   {
     title: "Avisos",
