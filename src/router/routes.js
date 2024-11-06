@@ -40,6 +40,11 @@ const routes = [
         component: () => import("pages/Clientes.vue"),
       },
       {
+        path: "agendamentos",
+        name: "agendamentos",
+        component: () => import("pages/Agendamento.vue"),
+      },
+      {
         path: "veterinarios",
         name: "veterinarios",
         component: () => import("pages/Veterinarios.vue"),
