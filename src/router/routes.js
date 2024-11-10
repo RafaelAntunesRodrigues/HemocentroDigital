@@ -33,31 +33,37 @@ const routes = [
         path: "consultas",
         name: "consultas",
         component: () => import("pages/Consultas.vue"),
+        meta: { requiresAuth: true }
       },
       {
         path: "doadores",
         name: "doadores",
         component: () => import("pages/Clientes.vue"),
+        meta: { requiresAuth: true }
       },
       {
         path: "agendamentos",
         name: "agendamentos",
         component: () => import("pages/Agendamento.vue"),
+        meta: { requiresAuth: true }
       },
       {
         path: "veterinarios",
         name: "veterinarios",
         component: () => import("pages/Veterinarios.vue"),
+        meta: { requiresAuth: true }
       },
       {
         path: "animais",
         name: "animais",
         component: () => import("pages/Animais.vue"),
+        meta: { requiresAuth: true }
       },
       {
         path: "avisos",
         name: "avisos",
         component: () => import("pages/Avisos.vue"),
+        meta: { requiresAuth: true }
       },
     ],
   },
@@ -69,6 +75,7 @@ const routes = [
         path: "",
         name: "avisosHome",
         component: () => import("pages/AvisosHomePage.vue"),
+        meta: { requiresAuth: true }
       },
     ],
   },

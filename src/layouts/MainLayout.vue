@@ -11,6 +11,16 @@
           @click="toggleLeftDrawer"
         />
         <q-toolbar-title> Hemocentro </q-toolbar-title>
+        <q-space />
+        <q-btn
+          flat
+          dense
+          round
+          icon="logout"
+          aria-label="Logout"
+          @click="logout"
+          style="color: white"
+        />
       </q-toolbar>
     </q-header>
 
@@ -34,7 +44,7 @@
 <script>
 import { defineComponent, ref } from "vue";
 import EssentialLink from "components/EssentialLink.vue";
-import { route } from "quasar/wrappers";
+import { useRouter } from "vue-router";
 
 const linksList = [
   {
@@ -44,16 +54,16 @@ const linksList = [
     route: { name: "consultas" },
   },
   {
-    title: "Doadores",  // Alterado de "Clientes" para "Doadores"
+    title: "Doadores",
     caption: "",
     icon: "person",
-    route: { name: "doadores" }, // Atualize a rota se o nome também foi alterado
+    route: { name: "doadores" },
   },
   {
     title: "Agendamentos",
     caption: "",
     icon: "calendar_today",
-    route: {name: "agendamentos"},
+    route: { name: "agendamentos" },
   },
   {
     title: "Avisos",
@@ -72,6 +82,23 @@ export default defineComponent({
 
   setup() {
     const leftDrawerOpen = ref(false);
+    const router = useRouter();
+
+    // Função de logout
+    const logout = () => {
+      // Remover o token do localStorage
+      localStorage.removeItem("token");
+
+      // Redirecionar para a página inicial (ajuste para o nome correto da rota)
+      // Verifique se a rota "home" existe e ajuste se for necessário
+      try {
+        router.push({ name: "home" });
+      } catch (error) {
+        console.error("Erro ao redirecionar para a página inicial:", error);
+        // Redireciona diretamente para a raiz como fallback
+        router.push("/");
+      }
+    };
 
     return {
       essentialLinks: linksList,
@@ -79,7 +106,18 @@ export default defineComponent({
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
+      logout,
     };
   },
 });
 </script>
+
+<style scoped>
+.login-background {
+  background-color: #ffffff;
+}
+
+.error-message {
+  color: #ff0000;
+}
+</style>

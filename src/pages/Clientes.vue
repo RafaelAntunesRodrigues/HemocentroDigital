@@ -31,9 +31,9 @@
           class="text-white"
           no-caps
           :disable="loading"
-          label="Cadastrar"
-          :to="{ name: 'cadDoador' }"
-          style="background-color: #26335d; width: 120px"
+          label="Cadastrar Doador"
+          @click="openModal"
+          style="background-color: #26335d; width: 160px"
         />
       </template>
 
@@ -57,16 +57,71 @@
         </q-td>
       </template>
 
-      <template v-slot:body-cell-status="props">
+      <template v-slot:body-cell-dataNasc="props">
         <q-td :props="props">
-          <q-badge
-            :color="props.row.status === 'Concluído' ? 'red' : 'green'"
-          >
-            {{ props.row.status }}
-          </q-badge>
+          {{ formatDate(props.row.dataNasc) }}
         </q-td>
       </template>
     </q-table>
+
+    <!-- Modal para Cadastro de Doadores -->
+    <q-dialog v-model="modalOpen" persistent>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Cadastrar Doador</div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-input
+            v-model="doador.name"
+            outlined
+            label="Nome"
+            class="q-my-sm"
+          />
+          <q-input
+            v-model="doador.email"
+            outlined
+            label="E-mail"
+            class="q-my-sm"
+          />
+          <q-input
+            v-model="doador.telafone"
+            outlined
+            label="Telefone Contato"
+            type="tel"
+            class="q-my-sm"
+          />
+          <q-select
+            v-model="doador.tipoSanguineo"
+            outlined
+            label="Tipo Sanguíneo"
+            :options="[
+              'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
+            ]"
+            class="q-my-sm"
+          />
+          <q-input
+            v-model="doador.dataNasc"
+            outlined
+            label="Data de Nascimento"
+            type="date"
+            class="q-my-sm"
+          />
+          <q-input
+            v-model="doador.peso"
+            outlined
+            label="Peso (kg)"
+            type="number"
+            class="q-my-sm"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" color="primary" @click="closeModal" />
+          <q-btn flat label="Salvar" color="primary" @click="cadastrarDoador" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -133,49 +188,136 @@ export default defineComponent({
       },
     ]);
 
-    const fetchData = async () => {
+    const doador = ref({
+      name: "",
+      email: "",
+      telafone: "",
+      tipoSanguineo: "",
+      dataNasc: "",
+      peso: "",
+    });
+
+    const modalOpen = ref(false);
+    const $q = useQuasar();
+
+    const openModal = () => {
+      modalOpen.value = true;
+    };
+
+    const closeModal = () => {
+      modalOpen.value = false;
+      // Limpar os campos do doador ao fechar o modal
+      doador.value = {
+        name: "",
+        email: "",
+        telafone: "",
+        tipoSanguineo: "",
+        dataNasc: "",
+        peso: "",
+      };
+    };
+
+    const cadastrarDoador = async () => {
       try {
-        // Obtém o token do localStorage (ou de onde ele estiver armazenado)
         const token = localStorage.getItem("token");
 
         if (!token) {
           throw new Error("Token não encontrado");
         }
 
-        // Faz a requisição com o cabeçalho Authorization
+        const response = await api.post(
+          "https://localhost:7237/api/Doadores",
+          doador.value,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 201) {
+          $q.notify({
+            message: "Doador cadastrado com sucesso.",
+            color: "positive",
+          });
+          closeModal(); // Fecha o modal após o cadastro
+          fetchData(); // Atualiza a lista de doadores
+        }
+      } catch (error) {
+        console.error("Erro ao cadastrar doador:", error);
+        $q.notify({
+          message: "Erro ao cadastrar doador. Por favor, tente novamente.",
+          color: "negative",
+        });
+      }
+    };
+
+    const deleteRow = async (id) => {
+      try {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          throw new Error("Token não encontrado");
+        }
+
+        const response = await api.delete(
+          `https://localhost:7237/api/Doadores/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          $q.notify({
+            message: "Doador excluído com sucesso.",
+            color: "secondary",
+          });
+          fetchData(); // Atualiza a lista de doadores após exclusão
+        }
+      } catch (error) {
+        console.error("Erro ao excluir doador:", error);
+        $q.notify({
+          message: "Erro ao excluir doador. Por favor, tente novamente.",
+          color: "negative",
+        });
+      }
+    };
+
+    const confirm = (id) => {
+      $q.dialog({
+        title: "Confirmar",
+        message: "Tem certeza que deseja excluir o doador?",
+        ok: "Sim",
+        cancel: "Cancelar",
+      }).onOk(() => {
+        deleteRow(id);
+      });
+    };
+
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          throw new Error("Token não encontrado");
+        }
+
         const response = await api.get("https://localhost:7237/api/Doadores", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        const doadores = response.data; // A resposta contém um array de objetos
-
-        rows.value = filtroCPF.value
-          ? doadores.filter((doador) =>
-              doador.cpf && doador.cpf.includes(filtroCPF.value)
-            )
-          : doadores;
+        rows.value = response.data;
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
       }
     };
 
-    const $q = useQuasar();
-
-    const confirm = (id) => {
-      $q.dialog({
-        title: "Confirmar",
-        message: "Tem certeza que deseja excluir?",
-        ok: "Sim",
-        cancel: "Cancelar",
-      }).onOk(() => {
-        deleteRow(id);
-        $q.notify({
-          message: "Excluído com sucesso.",
-          color: "secondary",
-        });
-      });
+    const formatDate = (date) => {
+      return date ? new Date(date).toLocaleDateString("pt-BR") : "-";
     };
 
     const handleFilterChange = () => {
@@ -192,6 +334,12 @@ export default defineComponent({
       rows,
       confirm,
       filtroCPF,
+      modalOpen,
+      openModal,
+      closeModal,
+      cadastrarDoador,
+      doador,
+      formatDate,
     };
   },
 });
