@@ -66,6 +66,12 @@ const linksList = [
     route: { name: "agendamentos" },
   },
   {
+    title: "Estoque",
+    caption: "",
+    icon: "bloodtype",
+    route: {name: "estoque"}
+  },
+  {
     title: "Avisos",
     caption: "",
     icon: "announcement",
