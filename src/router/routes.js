@@ -86,6 +86,18 @@ const routes = [
     ],
   },
   {
+    path: "/estoque-home",
+    component: () => import("layouts/EstoqueLayout.vue"),
+    children: [
+      {
+        path: "",
+        name: "estoquehome",
+        component: () => import("pages/EstoqueHome.vue"),
+        meta: {requiresAuth: true}
+      },
+    ]
+  },
+  {
     path: "/home",
     component: () => import("pages/Home.vue"),
   },

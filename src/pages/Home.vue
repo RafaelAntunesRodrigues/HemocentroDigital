@@ -15,7 +15,7 @@ export default defineComponent({
       <div class="q-pa-md q-gutter-sm">
         <q-btn flat style="color: #ff0000; width: 120px" label="Login" text-color="#ff0000" no-caps
           @click="$router.push('/login')" />
-        <q-btn style="background: #ff0000; color: white; width: 120px" label="Cadastre-se" no-caps 
+        <q-btn style="background: #ff0000; color: white; width: 120px" label="Cadastre-se" no-caps
         @click="$router.push('/cadastro')"/>
       </div>
     </q-toolbar>
@@ -31,7 +31,7 @@ export default defineComponent({
             Hemocentro: sua doação faz a diferença!
           </q-card-section>
           <div class="q-pa-md q-gutter-sm">
-            <q-btn style="background: #ff0000; color: white; width: 240px" label="Status Sangue" no-caps />
+            <q-btn style="background: #ff0000; color: white; width: 240px" label="Status Sangue" no-caps @click="$router.push('/estoque-home')"/>
             <q-btn outline style="color: #ff0000; width: 120px" label="Avisos" text-color="#ff0000" no-caps @click="$router.push('/avisos-home')"/>
           </div>
         </q-card>
