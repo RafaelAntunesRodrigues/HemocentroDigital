@@ -149,7 +149,6 @@ export default {
         };
 
         const response = await api.post("https://localhost:7237/api/Doadores", doadorData);
-console.log(response.status);
         if (response.status === 200) {
           this.successMessage = "Cadastrado com sucesso!";
           this.errorMessage = "";
@@ -161,8 +160,13 @@ console.log(response.status);
             "Erro ao cadastrar. Verifique os dados e tente novamente.";
         }
       } catch (error) {
-        console.error("Erro no cadastro:", error);
+        console.error(error.response.data);
+        if (error.response.data != null){
+          this.errorMessage =  error.response.data;
+        }
+        else{
         this.errorMessage = "Erro ao cadastrar. Por favor, tente novamente.";
+        }
       }
     },
 

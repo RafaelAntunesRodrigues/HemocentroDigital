@@ -17,16 +17,6 @@
           </span>
         </span>
         <q-space />
-        <div class="q-pa-md">
-          <q-input
-            outlined
-            class="col-lg-6 col-xs-12"
-            filled
-            v-model="filtroNome"
-            label="Filtrar por Nome"
-            dense
-          />
-        </div>
         <q-btn
           class="text-white"
           no-caps

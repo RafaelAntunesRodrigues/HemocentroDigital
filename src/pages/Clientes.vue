@@ -17,16 +17,6 @@
           </span>
         </span>
         <q-space />
-        <div class="q-pa-md">
-          <q-input
-            outlined
-            class="col-lg-6 col-xs-12"
-            filled
-            v-model="filtroCPF"
-            label="Filtrar por CPF"
-            dense
-          />
-        </div>
         <q-btn
           class="text-white"
           no-caps
@@ -191,6 +181,7 @@ export default defineComponent({
     const doador = ref({
       name: "",
       email: "",
+      password: "",
       telafone: "",
       tipoSanguineo: "",
       dataNasc: "",
@@ -210,6 +201,7 @@ export default defineComponent({
       doador.value = {
         name: "",
         email: "",
+        password: "",
         telafone: "",
         tipoSanguineo: "",
         dataNasc: "",
@@ -235,7 +227,7 @@ export default defineComponent({
           }
         );
 
-        if (response.status === 201) {
+        if (response.status === 200) {
           $q.notify({
             message: "Doador cadastrado com sucesso.",
             color: "positive",
@@ -245,10 +237,18 @@ export default defineComponent({
         }
       } catch (error) {
         console.error("Erro ao cadastrar doador:", error);
-        $q.notify({
-          message: "Erro ao cadastrar doador. Por favor, tente novamente.",
-          color: "negative",
-        });
+        if (error.response.data != null){
+          $q.notify({
+            message: error.response.data,
+            color: "negative",
+          });
+        }
+        else{
+          $q.notify({
+            message: "Erro ao cadastrar doador. Por favor, tente novamente.",
+            color: "negative",
+          });
+        }
       }
     };
 

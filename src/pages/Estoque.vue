@@ -1,8 +1,5 @@
 <template>
   <q-page class="q-pa-xl estoque-background">
-    <div class="q-mb-md">
-      <q-btn flat round icon="arrow_back" @click="$router.push('/')">Voltar</q-btn>
-    </div>
 
     <div class="row justify-center">
       <div class="col-12 col-md-8">

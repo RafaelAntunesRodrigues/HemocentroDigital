@@ -97,8 +97,9 @@ export default {
       // Se a resposta tiver status 200, o login foi bem-sucedido
       if (response && response.status === 200) {
         
-        localStorage.setItem('token', response.data);
-        this.$router.push({ name: "consultas" });
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('doadorId', response.data.userId);
+        this.$router.push({ name: "perfil" });
       } else {
         // Tratar outros status de sucesso diferentes de 200 (por precaução)
         this.erroLogin =
@@ -108,8 +109,8 @@ export default {
       console.error("Erro durante o login:", error);
 
       // Tratamento seguro para erro que pode não conter todos os campos esperados
-      if (error.response && error.response.data) {
-        this.erroLogin = error.response.data.message || "Erro durante o login. Por favor, tente novamente.";
+      if (error.response.data != null) {
+        this.erroLogin = error.response.data;
       } else {
         this.erroLogin = "Erro durante o login. Por favor, tente novamente.";
       }
