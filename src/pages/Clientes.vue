@@ -18,6 +18,7 @@
         </span>
         <q-space />
         <q-btn
+        v-if="isAdmin"
           class="text-white"
           no-caps
           :disable="loading"
@@ -56,7 +57,7 @@
 
     <!-- Modal para Cadastro de Doadores -->
     <q-dialog v-model="modalOpen" persistent>
-      <q-card>
+      <q-card style="width: 600px; max-width: 90%; height: auto; max-height: 90%;">
         <q-card-section>
           <div class="text-h6">Cadastrar Doador</div>
         </q-card-section>
@@ -190,7 +191,7 @@ export default defineComponent({
 
     const modalOpen = ref(false);
     const $q = useQuasar();
-
+    const isAdmin = ref(false);
     const openModal = () => {
       modalOpen.value = true;
     };
@@ -237,18 +238,12 @@ export default defineComponent({
         }
       } catch (error) {
         console.error("Erro ao cadastrar doador:", error);
-        if (error.response.data != null){
-          $q.notify({
-            message: error.response.data,
-            color: "negative",
-          });
-        }
-        else{
+
           $q.notify({
             message: "Erro ao cadastrar doador. Por favor, tente novamente.",
             color: "negative",
           });
-        }
+        
       }
     };
 
@@ -304,13 +299,37 @@ export default defineComponent({
           throw new Error("Token não encontrado");
         }
 
-        const response = await api.get("https://localhost:7237/api/Doadores", {
+        const doadorId = localStorage.getItem("doadorId");
+
+        const userResponse = await api.get(`https://localhost:7237/api/Doadores/${doadorId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        rows.value = response.data;
+        isAdmin.value = userResponse.data.isAdmin;
+
+        
+
+        const url = isAdmin.value
+          ? "https://localhost:7237/api/Doadores"
+          : `https://localhost:7237/api/Doadores/${doadorId}`;
+
+
+        const response = await api.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        
+        if (isAdmin.value){
+          rows.value = response.data;  
+        }else{
+        var listDoador = [];
+        listDoador.push(response.data);
+        rows.value = listDoador;
+        }
+        
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
       }
@@ -340,6 +359,7 @@ export default defineComponent({
       cadastrarDoador,
       doador,
       formatDate,
+      isAdmin,
     };
   },
 });

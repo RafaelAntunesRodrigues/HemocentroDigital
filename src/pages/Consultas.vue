@@ -18,6 +18,7 @@
         </span>
         <q-space />
         <q-btn
+          v-if="isAdmin"
           class="text-white"
           no-caps
           :disable="loading"
@@ -56,7 +57,7 @@
 
     <!-- Modal para Cadastro de Consultas -->
     <q-dialog v-model="modalOpen" persistent>
-      <q-card>
+      <q-card style="min-width: 600px; max-width: 800px;">
         <q-card-section>
           <div class="text-h6">Cadastrar Consulta</div>
         </q-card-section>
@@ -123,7 +124,7 @@
 </template>
 
 <script>
-import { ref, defineComponent, onMounted, watch } from "vue";
+import { ref, defineComponent, onMounted } from "vue";
 import { useQuasar } from "quasar";
 import { api } from "src/boot/axios";
 
@@ -175,7 +176,7 @@ export default defineComponent({
         sortable: true,
         align: "left",
       },
-            {
+      {
         name: "local",
         field: "local",
         label: "Local",
@@ -208,6 +209,7 @@ export default defineComponent({
 
     const modalOpen = ref(false);
     const agendamentosOptions = ref([]);
+    const isAdmin = ref(false);
     const $q = useQuasar();
 
     const openModal = () => {
@@ -217,7 +219,6 @@ export default defineComponent({
 
     const closeModal = () => {
       modalOpen.value = false;
-      // Limpar os campos da consulta ao fechar o modal
       consulta.value = {
         AgendamentoId: null,
         DataConsulta: "",
@@ -265,10 +266,7 @@ export default defineComponent({
           throw new Error("Token não encontrado");
         }
 
-        consulta.value.AgendamentoId = consulta.value.AgendamentoId.id; 
-
-
-        console.log(consulta.value);
+        consulta.value.AgendamentoId = consulta.value.AgendamentoId.id;
 
         const response = await api.post(
           "https://localhost:7237/api/Consulta",
@@ -290,20 +288,10 @@ export default defineComponent({
         }
       } catch (error) {
         console.error("Erro ao cadastrar consulta:", error);
-
-        if (error.response.data != null)
-        {
-          $q.notify({
-            message: error.response.data,
-            color: "negative",
-          }); 
-        }else
-        {
-          $q.notify({
-            message: "Erro ao cadastrar consulta. Por favor, tente novamente.",
-            color: "negative",
-          });
-        }
+        $q.notify({
+          message: error.response?.data || "Erro ao cadastrar consulta. Por favor, tente novamente.",
+          color: "negative",
+        });
       }
     };
 
@@ -359,14 +347,38 @@ export default defineComponent({
           throw new Error("Token não encontrado");
         }
 
-        const response = await api.get("https://localhost:7237/api/Consulta", {
+        const doadorId = localStorage.getItem("doadorId");
+        const response = await api.get(`https://localhost:7237/api/Doadores/${doadorId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-console.log(response.data)
-        rows.value = response.data;
+        console.log(response);
+        if (response.status === 200) {
+          isAdmin.value = response.data.isAdmin;
+
+          // Se não for admin, filtrar apenas as consultas do próprio doador
+          if (!isAdmin.value) {
+            const consultasResponse = await api.get(
+              `https://localhost:7237/api/Consulta/GetConsultaByDoadorId/${doadorId}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            rows.value = consultasResponse.data;
+          } else {
+            // Se for admin, buscar todas as consultas
+            const consultasResponse = await api.get("https://localhost:7237/api/Consulta", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            rows.value = consultasResponse.data;
+          }
+        }
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
       }
@@ -391,6 +403,7 @@ console.log(response.data)
       consulta,
       agendamentosOptions,
       formatDate,
+      isAdmin,
     };
   },
 });

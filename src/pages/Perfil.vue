@@ -59,7 +59,7 @@
 
     <!-- Modal para Edição dos Dados do Usuário -->
     <q-dialog v-model="modalAberto" persistent>
-      <q-card>
+      <q-card class="q-pa-md custom-modal-card">
         <q-card-section>
           <div class="text-h6 text-center">Editar Perfil do Usuário</div>
         </q-card-section>
@@ -153,13 +153,17 @@ export default defineComponent({
         }
         const doadorId = localStorage.getItem("doadorId");
 
-         console.log(doadorId)
+        console.log(doadorId);
         // Enviar dados editados para o servidor
-        const response = await api.put(`https://localhost:7237/api/Doadores/${doadorId}`, usuarioEditado.value, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await api.put(
+          `https://localhost:7237/api/Doadores/${doadorId}`,
+          usuarioEditado.value,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.status === 200) {
           $q.notify({
@@ -172,17 +176,16 @@ export default defineComponent({
         }
       } catch (error) {
         console.error("Erro ao atualizar perfil:", error);
-        if(error.response.data != null){
+        if (error.response.data != null) {
           $q.notify({
-          message: error.response.data,
-          color: "negative",
-        });  
-        }
-        else{
+            message: error.response.data,
+            color: "negative",
+          });
+        } else {
           $q.notify({
-          message: "Erro ao atualizar perfil. Por favor, tente novamente.",
-          color: "negative",
-        });
+            message: "Erro ao atualizar perfil. Por favor, tente novamente.",
+            color: "negative",
+          });
         }
       }
     };
@@ -200,11 +203,14 @@ export default defineComponent({
         }
 
         // Faz a requisição para obter os dados do doador por ID
-        const response = await api.get(`https://localhost:7237/api/Doadores/${doadorId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await api.get(
+          `https://localhost:7237/api/Doadores/${doadorId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.status === 200) {
           usuario.value = response.data;
@@ -247,5 +253,10 @@ export default defineComponent({
 
 .full-width {
   width: 100%;
+}
+
+.custom-modal-card {
+  width: 80vw; /* Ajuste para definir a largura desejada do modal, 80% da largura da janela */
+  max-width: 600px; /* Pode definir um valor máximo para evitar um modal muito grande */
 }
 </style>

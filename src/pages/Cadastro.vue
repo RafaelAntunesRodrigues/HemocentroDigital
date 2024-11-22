@@ -148,6 +148,8 @@ export default {
           peso: this.cadastro.peso,
         };
 
+        console.log(doadorData);
+        
         const response = await api.post("https://localhost:7237/api/Doadores", doadorData);
         if (response.status === 200) {
           this.successMessage = "Cadastrado com sucesso!";

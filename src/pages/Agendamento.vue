@@ -64,7 +64,7 @@
 
     <!-- Modal para Cadastro de Agendamento -->
     <q-dialog v-model="modalOpen" persistent>
-      <q-card>
+      <q-card style="width: 600px; max-width: 90%; height: auto; max-height: 90%;">
         <q-card-section>
           <div class="text-h6">Cadastrar Agendamento</div>
         </q-card-section>
@@ -169,6 +169,7 @@ export default defineComponent({
 
     const modalOpen = ref(false);
     const doadoresOptions = ref([]);
+    const isAdmin = ref(false);
     const $q = useQuasar();
 
     const openModal = () => {
@@ -190,7 +191,7 @@ export default defineComponent({
     const fetchDoadores = async () => {
       try {
         const token = localStorage.getItem("token");
-
+        
         if (!token) {
           throw new Error("Token não encontrado");
         }
@@ -305,19 +306,31 @@ export default defineComponent({
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
-
         if (!token) {
           throw new Error("Token não encontrado");
         }
 
-        const response = await api.get(
-          "https://localhost:7237/api/AgendamentoDoacoes",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const doadorId = localStorage.getItem("doadorId");
+
+        const userResponse = await api.get(`https://localhost:7237/api/Doadores/${doadorId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        isAdmin.value = userResponse.data.isAdmin;
+
+        const url = isAdmin.value
+          ? "https://localhost:7237/api/AgendamentoDoacoes"
+          : `https://localhost:7237/api/AgendamentoDoacoes/GetAgendamentoByDoadorId/${doadorId}`;
+
+        const response = await api.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log(response);
 
         rows.value = response.data;
       } catch (error) {
@@ -353,6 +366,7 @@ export default defineComponent({
       agendamento,
       doadoresOptions,
       getDoadorNome,
+      isAdmin,
     };
   },
 });
