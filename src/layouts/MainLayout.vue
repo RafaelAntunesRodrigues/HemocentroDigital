@@ -47,7 +47,7 @@ import EssentialLink from "components/EssentialLink.vue";
 import { useRouter } from "vue-router";
 
 const linksList = [
-    {
+  {
     title: "Perfil",
     caption: "",
     icon: "person",
@@ -75,13 +75,19 @@ const linksList = [
     title: "Estoque",
     caption: "",
     icon: "bloodtype",
-    route: {name: "estoque"}
+    route: { name: "estoque" },
   },
   {
     title: "Avisos",
     caption: "",
     icon: "announcement",
     route: { name: "avisos" },
+  },
+  {
+    title: "Relatórios", // Novo item
+    caption: "",
+    icon: "bar_chart", // Ícone de gráfico para relatórios
+    route: { name: "relatorios" },
   },
 ];
 
