@@ -60,6 +60,7 @@ export default {
       { label: "Estoque de Sangue", value: "estoque" },
       { label: "Agendamentos", value: "agendamentos" },
       { label: "Doadores", value: "doadores" },
+      { label: "Consultas", value: "consultas" },
     ]);
     
     const selectedReport = ref(null);  // Armazena o tipo de relatório selecionado
@@ -82,7 +83,7 @@ export default {
         if (!token) throw new Error("Token não encontrado");  // Verifica se o token existe
 
         // Chamada para a API para buscar os dados do relatório
-        const response = await api.get(`https://localhost:7237/api/Relatorios/${selectedReport.value}`, {
+        const response = await api.get(`https://localhost:7237/api/Relatorios/${selectedReport.value.value}`, {
           headers: { Authorization: `Bearer ${token}` },  // Envia o token de autenticação no cabeçalho
         });
 
@@ -104,15 +105,22 @@ export default {
 
     // Função para exportar os dados para um arquivo Excel
     const exportToExcel = () => {
-      if (!tempDataForExcel.value.length) return;  // Se não houver dados na tabela temporária, não faz nada
+      try {
+        // Valida se há dados disponíveis
+        if (!Array.isArray(tempDataForExcel.value) || !tempDataForExcel.value.length) return;
 
-      // Cria uma planilha do Excel a partir da tabela temporária
-      const worksheet = XLSX.utils.json_to_sheet(tempDataForExcel.value);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Relatório");
+        // Cria a worksheet e o workbook
+        const worksheet = XLSX.utils.json_to_sheet(tempDataForExcel.value);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Relatório");
 
-      const fileName = `${selectedReport.value}-relatorio.xlsx`;  // Nome do arquivo Excel
-      XLSX.writeFile(workbook, fileName);  // Gera o arquivo Excel
+        // Gera o nome do arquivo e escreve o arquivo
+        const sanitizeFileName = (name) => name.replace(/[\/\\?%*:|"<>]/g, "-");
+        const fileName = `${sanitizeFileName(selectedReport.value.value)}-relatorio.xlsx`;
+        XLSX.writeFile(workbook, fileName);
+      } catch (error) {
+        console.error("Erro ao exportar para Excel:", error);
+      }
     };
 
     return {
